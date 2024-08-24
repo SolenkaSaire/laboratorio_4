@@ -39,10 +39,15 @@ public class Cliente {
         //codificar objeto usuario en base64 con nombre de llave y saldo de valor
         byte[] userBA= Util.objectToByteArray(usuario);
         String userB64 = Base64.encode(userBA);
-        System.out.println(userB64);
+        System.out.println(userB64);        Objects.sendObject(userB64, clientSideSocket);
 
-        Objects.sendObject(userB64, clientSideSocket);
-        String mensaje = (String) Objects.receiveObject( clientSideSocket);
+        //recibir mensaje del servidor
+        String mensajeB64 = (String) Objects.receiveObject( clientSideSocket);
+
+        System.out.println("[Server]: " + mensajeB64 );
+        byte[] mensajeBA2 = Base64.decode(mensajeB64);
+        String mensaje = (String)  Util.byteArrayToObject(mensajeBA2);
+
         System.out.println(mensaje);
         clientSideSocket.close();
     }

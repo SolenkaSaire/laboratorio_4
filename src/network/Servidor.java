@@ -56,11 +56,12 @@ public class Servidor {
 
         String fromUser = transaccion(usuario);
 
-        System.out.println("[Server]: se envió: " + fromUser);
+        //encriptar cadena de fromUser a B64
+        byte[] respuestaBA = Util.objectToByteArray(fromUser);
+        String respuestaB64 = Base64.encode(respuestaBA);
 
-
-
-        Objects.sendObject(fromUser, socket);
+        System.out.println("[Server]: se envió: " + respuestaB64);
+        Objects.sendObject(respuestaB64, socket);
     }
 
 
