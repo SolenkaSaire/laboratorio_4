@@ -105,5 +105,18 @@ public class Util {
         return buffer;
     }
 
+    public static byte[] intToByteArray(int value) {
+        return new byte[] {
+                (byte) (value >>> 24),
+                (byte) (value >>> 16),
+                (byte) (value >>> 8),
+                (byte) value
+        };
+    }
+
+    public static int byteArrayToInt(byte[] byteArray) {
+        return byteArray[0] << 24 | (byteArray[1] & 0xFF) << 16 | (byteArray[2] & 0xFF) << 8 | (byteArray[3] & 0xFF);
+    }
+
 
 }
