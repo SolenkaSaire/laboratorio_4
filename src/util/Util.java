@@ -88,6 +88,7 @@ public class Util {
     }
 
     public static Object byteArrayToObject(byte[] byteArray) throws IOException, ClassNotFoundException {
+        // se crea un objeto de tipo ByteArrayInputStream que es el que se encarga de leer los bytes
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(byteArray));
         Object o = in.readObject();
         in.close();
@@ -96,8 +97,11 @@ public class Util {
     }
 
     public static byte[] objectToByteArray(Object o) throws IOException {
+        // se crea un objeto de tipo ByteArrayOutputStream que es el que se encarga de almacenar los bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        // se crea un objeto de tipo ObjectOutputStream que es el que se encarga de escribir el objeto en el arreglo de bytes
         ObjectOutputStream out = new ObjectOutputStream(bos);
+        // se escribe el objeto en el arreglo de bytes
         out.writeObject(o);
         out.close();
         byte[] buffer = bos.toByteArray();

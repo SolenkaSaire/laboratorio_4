@@ -24,7 +24,9 @@ public class SymmetricCipherTester03 {
         SymmetricCipher cipher = new SymmetricCipher(secretKey, "DES/ECB/PKCS5Padding");
 
         String clearText2 = cipher.decryptMessage(encryptedText);
-        System.out.println(clearText2);
+
+
+        System.out.println("El texto descencriptado es:\n"+clearText2);
     }
 }
 

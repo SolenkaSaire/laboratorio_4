@@ -41,8 +41,10 @@ public class FileTransferClient {
         String folderNameToReceive = "Download";
 
 
-        //Files.sendFolder(folderNameToSend, socket);
-        //Files.receiveFolder(folderNameToReceive, socket);
+        Files.sendFolder(folderNameToSend, socket);
+        Files.receiveFolder(folderNameToReceive, socket);
+        
+        Files.pause(500);
 
        Hasher.generateIntegrityFile( folderNameToSend, "Docs/sha256sum.txt");
 

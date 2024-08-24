@@ -54,19 +54,27 @@ public class SymmetricCipher {
         return output;
     }
 
+    // este metodo recibe un objeto y lo cifra
     public byte[] encryptObject(Object input)
             throws IOException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        // arreglo que contendra el objeto cifrado
         byte[] cipherObject = null;
+        // arreglo que contendra el objeto en claro
         byte[] clearObject = null;
 
+        // se convierte el objeto a arreglo de bytes
         clearObject = Util.objectToByteArray(input);
 
+        // se inicializa el cifrado en modo cifrado con la llave secreta
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        
+        // se cifra el objeto
         cipherObject = cipher.doFinal(clearObject);
 
         return cipherObject;
     }
 
+    // metodo que recibe un arreglo de bytes y lo descifra
     public Object decryptObject(byte[] input) throws InvalidKeyException, IllegalBlockSizeException,
             BadPaddingException, ClassNotFoundException, IOException {
         Object output = null;

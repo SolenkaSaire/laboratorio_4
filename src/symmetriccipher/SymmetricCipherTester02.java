@@ -19,9 +19,13 @@ public class SymmetricCipherTester02 {
         SecretKey secretKey = KeyGenerator.getInstance("DES").generateKey();
         SymmetricCipher cipher = new SymmetricCipher(secretKey, "DES/ECB/PKCS5Padding");
 
-        String clearText = "In symmetric key cryptography, the same key is used to encrypt and decrypt the clear text.";
+//        String clearText = "In symmetric key cryptography, the same key is used to encrypt and decrypt the clear text.";
+        String clearText = "Iiteralmente ryan gosling";
+
         System.out.println(clearText);
         byte[] encryptedText = cipher.encryptMessage(clearText);
+
+        System.out.println(new String(encryptedText));
         System.out.println(Util.byteArrayToHexString(encryptedText, " "));
 
         Util.saveObject(secretKey, "secretKey.key");
