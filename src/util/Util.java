@@ -1,9 +1,87 @@
 package util;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import java.io.*;
 
+import symmetriccipher.SecretKeyManager;
+import symmetriccipher.SymmetricCipher;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class Util {
-    public static String byteArrayToHexString(byte[] bytes, String separator){
+
+
+    /*LAB 4 encriptando y descencriptando archivos de texto*/
+    public static String encryptTextFile(String filename) throws Exception {
+        String contenido = readFileAsString(filename);
+       SecretKey secretKey = SecretKeyManager.loadKey();
+        //SecretKey secretKey = KeyGenerator.getInstance("DES").generateKey();
+
+        SymmetricCipher cipher = new SymmetricCipher(secretKey, "DES/ECB/PKCS5Padding");
+        String[] linea = contenido.split("\n");
+        StringBuilder encryptedB64 = new StringBuilder();
+        for (int i = 0; i < linea.length; i++) {
+            byte[] encryptedText = cipher.encryptMessage(linea[i]);
+            encryptedB64.append(Base64.encode(encryptedText));
+            if (i < linea.length - 1) {
+                encryptedB64.append("\n");
+            }
+        }
+        String path = pathToEncrypted(filename);
+        //writeStringToFile(encryptedB64.toString(), path);
+        WriteToFile(path, encryptedB64.toString(), false);
+        return path;
+    }
+
+    private static String pathToEncrypted(String path) {
+        return path + ".encrypted";
+    }
+
+
+    public static String decryptTextFile(String filename) throws Exception {
+        String contenido = readFileAsString(filename);
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        //SecretKey secretKey = KeyGenerator.getInstance("DES").generateKey();
+
+        SymmetricCipher cipher = new SymmetricCipher(secretKey, "DES/ECB/PKCS5Padding");
+        System.out.println(contenido);
+        String[] linea = contenido.split("\n");
+        StringBuilder decryptedText = new StringBuilder();
+        for (int i = 0; i < linea.length; i++) {
+            System.out.println(linea[i]);
+            byte[] decryptedBytes = Base64.decode(linea[i]);
+            decryptedText.append(cipher.decryptMessage(decryptedBytes));
+            if (i < linea.length - 1) {
+                decryptedText.append("\n");
+                    
+            }
+            System.out.println(decryptedText.toString()) ;
+        }
+        String path = pathToDecrypted(filename);
+        //writeStringToFile(decryptedText.toString(), path);
+        WriteToFile(path, decryptedText.toString(), false);
+        return path;
+    }
+
+    private static String pathToDecrypted(String path) {
+        String[] r = path.split("\\.");
+        return r[0] + ".plain." + r[r.length - 2];
+    }
+
+    public static String readFileAsString(String filePath) {
+        String content = "";
+        try {
+            content = new String(Files.readAllBytes(Paths.get(filePath)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+    /*FIN LAB4*/
+    public static String byteArrayToHexString(byte[] bytes, String separator) {
         String resultado = "";
         for (int i = 0; i < bytes.length; i++) {
             resultado += String.format("%02x", bytes[i]) + separator;
@@ -12,7 +90,7 @@ public class Util {
     }
 
     //metodo para verificar si un hash es o no hexadecimal
-    public static boolean isHexadecimal(String hash){
+    public static boolean isHexadecimal(String hash) {
         return hash.matches("[0-9a-fA-F]+");
     }
 
@@ -30,7 +108,7 @@ public class Util {
         out.close();
     }
 
-    public static Object loadObject (String fileName) throws IOException, ClassNotFoundException, InterruptedException {
+    public static Object loadObject(String fileName) throws IOException, ClassNotFoundException, InterruptedException {
         FileInputStream fileIn;
         ObjectInputStream in;
 
@@ -110,7 +188,7 @@ public class Util {
     }
 
     public static byte[] intToByteArray(int value) {
-        return new byte[] {
+        return new byte[]{
                 (byte) (value >>> 24),
                 (byte) (value >>> 16),
                 (byte) (value >>> 8),
