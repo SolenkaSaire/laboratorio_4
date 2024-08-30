@@ -7,6 +7,7 @@ import java.io.*;
 import symmetriccipher.SecretKeyManager;
 import symmetriccipher.SymmetricCipher;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -30,9 +31,18 @@ public class Util {
             }
         }
         String path = pathToEncrypted(filename);
-        //writeStringToFile(encryptedB64.toString(), path);
-        WriteToFile(path, encryptedB64.toString(), false);
+        writeStringToFile(encryptedB64.toString(), path);
+
+       // WriteToFile(path, encryptedB64.toString(), false);
         return path;
+    }
+
+    public static void writeStringToFile(String content, String filePath) {
+        try {
+            Files.write(Paths.get(filePath), content.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String pathToEncrypted(String path) {
