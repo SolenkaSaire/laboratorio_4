@@ -26,6 +26,58 @@ public class Util {
 
     private static final int BLOCK_SIZE = 512;
 
+    public static String encryptFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        String encryptedFilename = filename + ".encrypted";
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(encryptedFilename))) {
+
+            byte[] buffer = new byte[512];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
+                if (encryptedData != null) {
+                    outputStream.write(encryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return encryptedFilename;
+    }
+
+    public static String decryptFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        String decryptedFilename = "serverReceiver/" + new File(filename).getName().replace(".encrypted", "");
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
+
+            byte[] buffer = new byte[512 + 8];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
+                if (decryptedData != null) {
+                    outputStream.write(decryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+        return decryptedFilename;
+    }
+
     public static String encryptFile(String filename) throws Exception {
         SecretKey secretKey = SecretKeyManager.loadKey();
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
@@ -53,6 +105,7 @@ public class Util {
 
         return filename + ".encrypted";
     }
+
 
     public static String decryptFile(String filename) throws Exception {
         SecretKey secretKey = SecretKeyManager.loadKey();
@@ -83,6 +136,9 @@ public class Util {
 
         return pathToDecrypted(filename);
     }
+
+
+
 
     /*LAB 4 encriptando y descencriptando archivos de texto*/
     public static String encryptTextFile(String filename) throws Exception {
@@ -280,106 +336,5 @@ public class Util {
         return byteArray[0] << 24 | (byteArray[1] & 0xFF) << 16 | (byteArray[2] & 0xFF) << 8 | (byteArray[3] & 0xFF);
     }
 
-    public static  void printKey(PublicKey publicKey){
-        String publicKeyBase64 = java.util.Base64.getEncoder().encodeToString(publicKey.getEncoded());
-        System.out.println("----BEGIN PUBLIC KEY----");
-        int length = publicKeyBase64.length();
-        for (int i = 0; i < length; i += 60) {
-            System.out.println(publicKeyBase64.substring(i, Math.min(length, i + 60)));
-        }
-        System.out.println("----END PUBLIC KEY----");
-    }
-
-    public static  void printKey(PrivateKey privateKey){
-        String privateKeyBase64 = java.util.Base64.getEncoder().encodeToString(privateKey.getEncoded());
-        System.out.println("----BEGIN PRIVATE KEY----");
-        int length = privateKeyBase64.length();
-        for (int i = 0; i < length; i += 60) {
-            System.out.println(privateKeyBase64.substring(i, Math.min(length, i + 60)));
-        }
-        System.out.println("----END PRIVATE KEY----");
-    }
-
-    public static String getKeyString(PublicKey publicKey) {
-        StringBuilder sb = new StringBuilder();
-        String publicKeyBase64 = Base64.encode(publicKey.getEncoded());
-        sb.append("----BEGIN PUBLIC KEY----\n");
-        int length = publicKeyBase64.length();
-        for (int i = 0; i < length; i += 64) {
-            sb.append(publicKeyBase64, i, Math.min(length, i + 64)).append("\n");
-        }
-        sb.append("----END PUBLIC KEY----");
-        return sb.toString();
-    }
-
-    public static String getKeyString(PrivateKey privateKey) {
-        StringBuilder sb = new StringBuilder();
-        String privateKeyBase64 = Base64.encode(privateKey.getEncoded());
-        sb.append("----BEGIN PRIVATE KEY----\n");
-        int length = privateKeyBase64.length();
-        for (int i = 0; i < length; i += 64) {
-            sb.append(privateKeyBase64, i, Math.min(length, i + 64)).append("\n");
-        }
-        sb.append("----END PRIVATE KEY----");
-        return sb.toString();
-    }
-
-    public static String getPGPMessageString(byte[] encryptedMessage) {
-        StringBuilder sb = new StringBuilder();
-        String encryptedBase64 = Base64.encode(encryptedMessage);;
-        sb.append("-----BEGIN PGP MESSAGE-----\n");
-        int length = encryptedBase64.length();
-        for (int i = 0; i < length; i += 64) { // PGP utiliza un ancho de línea de 64 caracteres
-            sb.append(encryptedBase64, i, Math.min(length, i + 64)).append("\n");
-        }
-        sb.append("-----END PGP MESSAGE-----");
-        return sb.toString();
-    }
-
-    public static void saveToFile(String content, String fileName) {
-        try {
-            // Crear un archivo en la carpeta raíz
-            File file = new File(fileName);
-            FileWriter writer = new FileWriter(file);
-            writer.write(content);
-            writer.close();
-            System.out.println("El contenido se ha guardado en el archivo: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            System.err.println("Ocurrió un error al guardar el archivo: " + e.getMessage());
-        }
-    }
-
-    public static PublicKey loadPublicKeyFromFile(String filename) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String keyString = new String(Files.readAllBytes(new File(filename).toPath()));
-        String publicKeyBase64 = keyString
-                .replace("----BEGIN PUBLIC KEY----", "")
-                .replace("----END PUBLIC KEY----", "")
-                .replaceAll("\\s", "");
-        byte[] keyBytes = Base64.decode(publicKeyBase64);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePublic(keySpec);
-    }
-
-    public static PrivateKey loadPrivateKeyFromFile(String filename) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String keyString = new String(Files.readAllBytes(new File(filename).toPath()));
-        String privateKeyBase64 = keyString
-                .replace("----BEGIN PRIVATE KEY----", "")
-                .replace("----END PRIVATE KEY----", "")
-                .replaceAll("\\s", "");
-        byte[] keyBytes = Base64.decode(privateKeyBase64);
-        KeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePrivate(spec);
-    }
-
-    public static byte[] loadEncryptedMessageFromFile(String filename) throws IOException {
-        String messageString = new String(Files.readAllBytes(new File(filename).toPath()));
-        String encryptedBase64 = messageString
-                .replace("-----BEGIN PGP MESSAGE-----", "")
-                .replace("-----END PGP MESSAGE-----", "")
-                .replaceAll("\\s", "");
-        return Base64.decode(encryptedBase64);
-    }
 
 }

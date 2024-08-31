@@ -3,20 +3,23 @@ package network;
 import integrity.Hasher;
 import persistencia.Usuario;
 import symmetriccipher.SecretKeyManager;
+import util.Files;
 import util.Base64;
 import util.Objects;
 import util.Util;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.net.Socket;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 
-import static util.Util.pathToDecrypted;
-import static util.Util.pathToEncrypted;
+import static util.Util.*;
 
 public class Cliente {
 
@@ -45,51 +48,60 @@ public class Cliente {
 
     public void init() throws Exception {
         clientSideSocket = new Socket(server, port);
-        Usuario usuario = new Usuario("cristian",10000.0);
-        //codificar objeto usuario en base64 con nombre de llave y saldo de valor
-        byte[] userBA= Util.objectToByteArray(usuario);
-        String userB64 = Base64.encode(userBA);
-        System.out.println(userB64);        Objects.sendObject(userB64, clientSideSocket);
-
-        //recibir mensaje del servidor
-        String mensajeB64 = (String) Objects.receiveObject( clientSideSocket);
-
-        System.out.println("[Server]: " + mensajeB64 );
-        byte[] mensajeBA2 = Base64.decode(mensajeB64);
-        String mensaje = (String)  Util.byteArrayToObject(mensajeBA2);
-
-        System.out.println(mensaje);
+        System.out.println("Connected to the server");
+        //iniciar comunicacion para enviar archivos cifrados a traves de la red
+        protocol(clientSideSocket);
         clientSideSocket.close();
     }
 
-    public static void main(String[] args) throws Exception {
-        Cliente ftc;
-        if (args.length == 0) {
-            ftc = new Cliente();
-        } else {
-            String server = args[0];
-            int port = Integer.parseInt(args[1]);
-            ftc = new Cliente(server, port);
-        }
-        ftc.init();
+    public void protocol(Socket socket) throws Exception {
+        System.out.println("Client: Sending encrypted file to server...");
+        String filename = "Eiffel.jpg";
+        sendEncryptedFile(filename, socket);
+
+        System.out.println("Client: Receiving encrypted file from server...");
+        receiveEncryptedFile(socket);
     }
 
-
-    /*LAB 4 punto 2*/
-    public static String encryptBinaryFile(String filename) throws Exception {
+    public static void sendEncryptedFile(String filename, Socket socket) throws Exception {
         SecretKey secretKey = SecretKeyManager.loadKey();
+        String encryptedFilename = encryptTextFile(filename, secretKey);
+
+        Files.sendFile(encryptedFilename, socket);
+        Objects.sendObject(secretKey.getEncoded(), socket);
+
+        String hashFilename = encryptedFilename + ".hash";
+        Hasher.generateIntegrityCheckerFile(filename, hashFilename);
+        Files.sendFile(hashFilename, socket);
+    }
+
+    public static void receiveEncryptedFile(Socket socket) throws Exception {
+        String encryptedFilename = Files.receiveFile("clientReceiver", socket);
+        byte[] keyBytes = (byte[]) Objects.receiveObject(socket);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "DES");
+
+        // Adding a small delay to ensure the next file is fully sent
+        Thread.sleep(1000);
+
+        String hashFilename = Files.receiveFile("clientReceiver", socket);
+
+        String decryptedFilename = decryptTextFile(encryptedFilename, secretKey);
+        Hasher.generateIntegrityFile(decryptedFilename, hashFilename);
+        System.out.println("Client: File received and integrity verified.");
+    }
+
+    public static String encryptTextFile(String filename, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
+        String encryptedFilename = filename + ".encrypted";
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
-             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToEncrypted(filename)))) {
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(encryptedFilename))) {
 
-            byte[] buffer = new byte[BLOCK_SIZE];
+            byte[] buffer = new byte[512];
             int bytesRead;
 
-            // se lee el archivo por bloques de 512 bytes para encriptar
             while ((bytesRead = inputStream.read(buffer)) != -1) {
-                //se encripta el bloque en base 64
                 byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
                 if (encryptedData != null) {
                     outputStream.write(encryptedData);
@@ -101,26 +113,21 @@ public class Cliente {
             }
         }
 
-        return filename + ".encrypted";
+        return encryptedFilename;
     }
 
-
-    public static String decryptBinaryFile(String filename) throws Exception {
-        SecretKey secretKey = SecretKeyManager.loadKey();
+    public static String decryptTextFile(String filename, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-
-
+        String decryptedFilename = "clientReceiver/" + new File(filename).getName().replace(".encrypted", "");
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
-             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToDecrypted(filename)))) {
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
 
-            byte[] buffer = new byte[BLOCK_SIZE + 8];
+            byte[] buffer = new byte[512 + 8];
             int bytesRead;
 
-            // se lee el archivo por bloques de 512 bytes para desencriptar
             while ((bytesRead = inputStream.read(buffer)) != -1) {
-                // se desencripta el bloque
                 byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
                 if (decryptedData != null) {
                     outputStream.write(decryptedData);
@@ -131,10 +138,19 @@ public class Cliente {
                 outputStream.write(finalBlock);
             }
         }
-
-        return pathToDecrypted(filename);
+        return decryptedFilename;
     }
 
-    /**/
+        public static void main(String[] args) throws Exception {
+        Cliente ftc;
+        if (args.length == 0) {
+            ftc = new Cliente();
+        } else {
+            String server = args[0];
+            int port = Integer.parseInt(args[1]);
+            ftc = new Cliente(server, port);
+        }
+        ftc.init();
+    }
 
 }

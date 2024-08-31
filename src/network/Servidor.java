@@ -1,16 +1,24 @@
 package network;
 
+import integrity.Hasher;
 import persistencia.Person;
 import persistencia.Usuario;
+import symmetriccipher.SecretKeyManager;
 import util.Base64;
 import util.Files;
 import util.Objects;
 import util.Util;
+import javax.crypto.Cipher;
 
-import java.io.PrintWriter;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+
+import static util.Util.decryptFile;
+import static util.Util.encryptFile;
 
 public class Servidor {
     public static final int PORT = 4001;
@@ -39,56 +47,96 @@ public class Servidor {
         while (true) {
             serverSideSocket = listener.accept();
             protocol(serverSideSocket);
+            serverSideSocket.close();
         }
     }
 
     public void protocol(Socket socket) throws Exception {
-        //Usuario usuario = (Usuario) Objects.receiveObject(socket);
-        //recibir cadena codificada en base64
-        String usuarioB64 = (String) Objects.receiveObject(socket);
+        System.out.println("Server: Receiving encrypted file from client...");
+        receiveEncryptedFile(socket);
 
-        System.out.println("[Server]: se recibió en RAW B64: " + usuarioB64 );
-
-        byte[] nameBA2 = Base64.decode(usuarioB64);
-        Usuario usuario = (Usuario)  Util.byteArrayToObject(nameBA2);
-
-        System.out.println("[Server]: se recibió: " + usuario.getNombre() + " " + usuario.getMonto());
-
-        String fromUser = transaccion(usuario);
-
-        //encriptar cadena de fromUser a B64
-        byte[] respuestaBA = Util.objectToByteArray(fromUser);
-        String respuestaB64 = Base64.encode(respuestaBA);
-
-        System.out.println("[Server]: se envió: " + respuestaB64);
-        Objects.sendObject(respuestaB64, socket);
+        System.out.println("Server: Sending encrypted file to client...");
+        String filename = "scan.pdf";
+        sendEncryptedFile(filename, socket);
     }
 
+    public static void sendEncryptedFile(String filename, Socket socket) throws Exception {
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        String encryptedFilename = encryptFile(filename, secretKey);
 
-    public static String realizarTranssacion(Usuario usuario) {
-        if (usuarios.containsKey(usuario.getNombre())) {
-            Double moonto = usuarios.get(usuario.getNombre());
-            moonto += usuario.getMonto();
-            usuarios.put(usuario.getNombre(), moonto);
-            return "Transsación realziada . saldo: " + moonto;
+        Files.sendFile(encryptedFilename, socket);
+        Objects.sendObject(secretKey.getEncoded(), socket);
+
+        String hashFilename = encryptedFilename + ".hash";
+        Hasher.generateIntegrityCheckerFile(filename, hashFilename);
+        Files.sendFile(hashFilename, socket);
+    }
+
+    public static void receiveEncryptedFile(Socket socket) throws Exception {
+        String encryptedFilename = Files.receiveFile("serverReceiver", socket);
+        byte[] keyBytes = (byte[]) Objects.receiveObject(socket);
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "DES");
+
+        // Adding a small delay to ensure the next file is fully sent
+        Thread.sleep(1000);
+
+        String hashFilename = Files.receiveFile("serverReceiver", socket);
+        String decryptedFilename = decryptFile(encryptedFilename, secretKey);
+
+        Hasher.generateIntegrityFile(decryptedFilename, hashFilename);
+        System.out.println("Server: File received and integrity verified.");
+    }
+
+    public static String encryptFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        String encryptedFilename = filename + ".encrypted";
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(encryptedFilename))) {
+
+            byte[] buffer = new byte[512];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
+                if (encryptedData != null) {
+                    outputStream.write(encryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
         }
-        usuarios.put(usuario.getNombre(), usuario.getMonto());
-        return "Cuenta creada exitosamente :) . saldo:  " + usuario.getMonto();
+
+        return encryptedFilename;
     }
 
-    public static String transaccion(Usuario usuario) {
+    public static String decryptFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        if (usuarios.containsKey(usuario.getNombre())) {
-            Double monto = usuarios.get(usuario.getNombre());
-            monto += usuario.getMonto();
-            usuarios.put(usuario.getNombre(), monto);
-            return "Transacción realizada . saldo: " + monto;
-        } else {
-            usuarios.put(usuario.getNombre(), usuario.getMonto());
-            return "Cuenta creada exitosamente :) . saldo:  " + usuario.getMonto();
+        String decryptedFilename = "serverReceiver\\" + new File(filename).getName().replace(".encrypted", "");
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
+
+            byte[] buffer = new byte[512 + 8];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
+                if (decryptedData != null) {
+                    outputStream.write(decryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
         }
+        return decryptedFilename;
     }
-
     public static void main(String[] args) throws Exception {
         Servidor fts = null;
         if (args.length == 0) {
