@@ -21,10 +21,60 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class Util {
+   /*
+        byte[][] output = new byte[numOfChunks][];
+
+        for (int i = 0; i < numOfChunks; i++) {
+            int start = i * chunkSize;
+            int length = Math.min(array.length - start, chunkSize);
+
+            byte[] temp = new byte[length];
+            System.arraycopy(array, start, temp, 0, length);
+            output[i] = temp;
+        }
+
+        return output;*/
+
 
     /*LAB 4 encriptar y desencriptar archivos binarios*/
 
     private static final int BLOCK_SIZE = 512;
+
+        public static byte[][] split(byte[] array, int chunkSize) {
+            int numOfChunks = (int) Math.ceil((double) array.length / chunkSize);
+            int lastChunkSize = array.length % chunkSize;
+            byte[][] output = new byte[numOfChunks][];
+            //se recorre el arreglo de bytes
+            for (int i = 0; i < numOfChunks; i++) {
+                int start = i * chunkSize;
+                int length = i == numOfChunks - 1 ? lastChunkSize : chunkSize;
+                byte[] temp = new byte[length];
+                //se copia el fragmento del arreglo de bytes original al arreglo de bytes temporal
+                System.arraycopy(array, start, temp, 0, length);
+                output[i] = temp;
+            }
+            return output;
+        }
+
+
+
+
+        public static byte[] join(byte[][] array) {
+            int length = 0;
+            //se recorre la matriz de bytes
+            for (byte[] bytes : array) {
+                length += bytes.length;
+            }
+            byte[] output = new byte[length];
+            int offset = 0;
+            //se recorre la matriz de bytes
+            for (byte[] bytes : array) {
+                System.arraycopy(bytes, 0, output, offset, bytes.length);
+                offset += bytes.length;
+            }
+            return output;
+        }
+
 
     public static String encryptFile(String filename, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
