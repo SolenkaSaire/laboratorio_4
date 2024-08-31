@@ -38,6 +38,7 @@ public class RestriccionesRSATester02 {
         //crear matriz de bytes
        byte[][] matrixBytes = Util.split(clearText, 110);
        byte[][] matrixBytesEncrypted = new byte[matrixBytes.length][];
+       byte[][] matrixBytesDecrypted = new byte[matrixBytes.length][];
 
        for (int i = 0; i < matrixBytes.length; i++) {
            System.out.println("Bq " + i + ": " + new String(matrixBytes[i]).length());
@@ -46,21 +47,17 @@ public class RestriccionesRSATester02 {
            matrixBytesEncrypted[i] = encryptedText;
        }
 
-        //unir los bloques descifrados
-        byte[] decrypted = Util.join(matrixBytesEncrypted);
-        byte[][] matrixBytesDecrypted = Util.split(decrypted, 110);
+       for(int i = 0; i< matrixBytesEncrypted.length; i++){
+           System.out.println("Before " + i + ": " + matrixBytesEncrypted[i].length);
+           byte[] decryptedText = cipher.decryptMessage(matrixBytesEncrypted[i], privateKey).getBytes();
+              System.out.println("After " + i + ": " + decryptedText.length);
 
-        String dencryptedText = "";
+                matrixBytesDecrypted[i] = decryptedText;
+         }
 
-        for (int i = 0; i < matrixBytesDecrypted.length; i++) {
-            System.out.println("Bq " + i + ": " + matrixBytesDecrypted[i].length);
-            //dencryptedText += cipher.decryptMessage(matrixBytesDecrypted[i], privateKey);
-        }
-
-        System.out.println(dencryptedText);
-
-        //imprimir
-        System.out.println("Texto descifrado: " + new String(decrypted));
+       //join de matriz a array
+         byte[] decrypted = Util.join(matrixBytesDecrypted);
+            System.out.println("Texto descifrado: " + new String(decrypted));
 
 
 
