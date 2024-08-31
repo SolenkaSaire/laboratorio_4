@@ -48,7 +48,8 @@ public class Util {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        String decryptedFilename = "serverReceiver/" + new File(filename).getName().replace(".encrypted", "");
+        String decryptedStr= "decrypted.";
+        String decryptedFilename = "serverReceiver/" +decryptedStr+ new File(filename).getName().replace(".encrypted", "");
 
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
@@ -104,8 +105,6 @@ public class Util {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-
-
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToDecrypted(filename)))) {
 
@@ -160,7 +159,8 @@ public class Util {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        String decryptedFilename = "clientReceiver/" + new File(filename).getName().replace(".encrypted", ".");
+        String decryptedStr= "decrypted.";
+        String decryptedFilename = "clientReceiver/" + decryptedStr+ new File(filename).getName().replace(".encrypted", "");
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
 

@@ -40,7 +40,7 @@ public class Hasher {
         System.out.println("generating INTEGRITY file");
         System.out.println("FOLDERNAME: "+inputFile);
         System.out.println("OUTPUTFILENAME: "+outputFileName);
-        MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+      /*  MessageDigest hasher = MessageDigest.getInstance("SHA-256");
         FileInputStream fis = new FileInputStream(inputFile);
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -55,30 +55,20 @@ public class Hasher {
         FileOutputStream fos = new FileOutputStream(outputFileName);
         fos.write(hashHex.getBytes());
         fos.close();
-        /*
-        File folder = new File(folderName);
-        File outputFile = new File(outputFileName);
 
-        if (!folder.exists() || !folder.isDirectory()) {
-            throw new IllegalArgumentException("La carpeta no existe o no es un directorio.");
-        }
-
-        File[] files = folder.listFiles();
-        if (files == null || files.length == 0) {
-            throw new IllegalArgumentException("La carpeta está vacía.");
-        }
-
-        try (PrintWriter writer = new PrintWriter(new FileWriter(outputFile))) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    String hash = getHashFile(file.getPath(), "SHA-256");
-                    String fileIndicator = isTextFile(file) ? " " : "*";
-                    writer.println(hash + " " + fileIndicator + file.getName());
-                }
+       */
+        // Creación del PrintWriter para escribir en el archivo de salida
+        try (PrintWriter writer = new PrintWriter(new FileWriter(outputFileName))) {
+            File file = new File(inputFile);
+            if (file.isFile()) {
+                // Obtención del hash en SHA-256
+                String hash = getHashFile(file.getPath(), "SHA-256");
+                // Determinación del indicador según si el archivo es de texto o binario
+                String fileIndicator = isTextFile(file) ? " " : "*";
+                // Escritura en el archivo .hash
+                writer.println(hash + " " + fileIndicator + file.getName());
             }
         }
-
-         */
     }
 
     private static boolean isTextFile(File file) throws IOException {
@@ -139,8 +129,10 @@ public class Hasher {
                     continue;
                 }
 
+                fileName="";
+                //System.out.println("sea verifica archivo de carpeta "+folderName+" con nombre "+fileName);
                 File file = new File(folder, fileName);
-
+                System.out.println("ruta del archivo: "+file.getPath()) ;
                 if (!file.exists()) {
                     missingFilesCount++;
                     missingFiles.add(fileName);
