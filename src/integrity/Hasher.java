@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static util.Util.byteArrayToHexString;
+
 public class Hasher {
 
 
@@ -16,7 +18,7 @@ public class Hasher {
         MessageDigest hasher = MessageDigest.getInstance(algorithm);
         hasher.update(inputBA);
 
-        return Util.byteArrayToHexString(hasher.digest(), "");
+        return byteArrayToHexString(hasher.digest(), "");
     }
 
 
@@ -31,10 +33,29 @@ public class Hasher {
             hasher.update(buffer, 0, in);
         }
         fis.close();
-        return Util.byteArrayToHexString(hasher.digest(), "");
+        return byteArrayToHexString(hasher.digest(), "");
     }
 
-    public static void generateIntegrityCheckerFile(String folderName, String outputFileName) throws Exception {
+    public static void generateIntegrityCheckerFile(String inputFile, String outputFileName) throws Exception {
+        System.out.println("generating INTEGRITY file");
+        System.out.println("FOLDERNAME: "+inputFile);
+        System.out.println("OUTPUTFILENAME: "+outputFileName);
+        MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+        FileInputStream fis = new FileInputStream(inputFile);
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fis.read(buffer)) != -1) {
+            hasher.update(buffer, 0, bytesRead);
+        }
+        fis.close();
+
+        byte[] hash = hasher.digest();
+        String hashHex = byteArrayToHexString(hash, "");
+
+        FileOutputStream fos = new FileOutputStream(outputFileName);
+        fos.write(hashHex.getBytes());
+        fos.close();
+        /*
         File folder = new File(folderName);
         File outputFile = new File(outputFileName);
 
@@ -56,6 +77,8 @@ public class Hasher {
                 }
             }
         }
+
+         */
     }
 
     private static boolean isTextFile(File file) throws IOException {
@@ -73,12 +96,15 @@ public class Hasher {
     }
 
     public static void generateIntegrityFile(String folderName, String integrityFileName) throws Exception {
+        System.out.println("checking INTEGRITY FILE");
+        System.out.println("FOLDERNAME: "+folderName);
+        System.out.println("INTEGRITYFILENAME: "+integrityFileName);
         File folder = new File(folderName);
         File integrityFile = new File(integrityFileName);
 
-        if (!folder.exists() || !folder.isDirectory()) {
-            throw new IllegalArgumentException("La carpeta no existe o no es un directorio.");
-        }
+//        if (!folder.exists() || !folder.isDirectory()) {
+//            throw new IllegalArgumentException("La carpeta no existe o no es un directorio.");
+//        }
 
         if (!integrityFile.exists()) {
             throw new IllegalArgumentException("El archivo de integridad no existe.");
