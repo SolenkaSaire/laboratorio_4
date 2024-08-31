@@ -1,9 +1,12 @@
 package publickeycipher;
 
+import util.Util;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -32,6 +35,22 @@ public class PublicKeyCipher {
         cipher.init(Cipher.DECRYPT_MODE, key);
         byte[] ciphertext = cipher.doFinal(input);
         output = new String(ciphertext);
+
+        return output;
+    }
+
+    public byte[] encryptObject(Object input, Key key) throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException {
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] clearObject = Util.objectToByteArray(input);
+        byte[] cipherObject = cipher.doFinal(clearObject);
+
+        return cipherObject;
+    }
+
+    public Object decryptObject(byte[] input, Key key) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException, ClassNotFoundException, IOException {
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] clearText = cipher.doFinal(input);
+        Object output = Util.byteArrayToObject(clearText);
 
         return output;
     }
