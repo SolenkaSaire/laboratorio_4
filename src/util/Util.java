@@ -106,7 +106,8 @@ public class Util {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-        String decryptedFilename = "serverReceiver/" + new File(filename).getName().replace(".encrypted", "");
+        String decryptedStr= "decrypted.";
+        String decryptedFilename = "serverReceiver/" +decryptedStr+ new File(filename).getName().replace(".encrypted", "");
 
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
@@ -162,8 +163,6 @@ public class Util {
         Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-
-
         try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToDecrypted(filename)))) {
 
@@ -187,7 +186,60 @@ public class Util {
         return pathToDecrypted(filename);
     }
 
+    /*encrypt y decrypt con llaves simetricas*/
+    public static String encryptTextFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
+        String encryptedFilename = filename + ".encrypted";
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(encryptedFilename))) {
+
+            byte[] buffer = new byte[512];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
+                if (encryptedData != null) {
+                    outputStream.write(encryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return encryptedFilename;
+    }
+
+    public static String decryptTextFile(String filename, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        String decryptedStr= "decrypted.";
+        String decryptedFilename = "clientReceiver/" + decryptedStr+ new File(filename).getName().replace(".encrypted", "");
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(decryptedFilename))) {
+
+            byte[] buffer = new byte[512 + 8];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
+                if (decryptedData != null) {
+                    outputStream.write(decryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+        return decryptedFilename;
+    }
+
+    /**/
 
 
     /*LAB 4 encriptando y descencriptando archivos de texto*/
