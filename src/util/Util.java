@@ -1,5 +1,6 @@
 package util;
 
+import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
@@ -12,6 +13,71 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Util {
+
+    /*LAB 4 encriptar y desencriptar archivos binarios*/
+
+    private static final int BLOCK_SIZE = 512;
+
+    public static String encryptFile(String filename) throws Exception {
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToEncrypted(filename)))) {
+
+            byte[] buffer = new byte[BLOCK_SIZE];
+            int bytesRead;
+
+            // se lee el archivo por bloques de 512 bytes para encriptar
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                //se encripta el bloque en base 64
+                byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
+                if (encryptedData != null) {
+                    outputStream.write(encryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return filename + ".encrypted";
+    }
+
+
+    public static String decryptFile(String filename) throws Exception {
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToDecrypted(filename)))) {
+
+            byte[] buffer = new byte[BLOCK_SIZE + 8];
+            int bytesRead;
+
+            // se lee el archivo por bloques de 512 bytes para desencriptar
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                // se desencripta el bloque
+                byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
+                if (decryptedData != null) {
+                    outputStream.write(decryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return pathToDecrypted(filename);
+    }
+
+
 
 
     /*LAB 4 encriptando y descencriptando archivos de texto*/
@@ -45,7 +111,7 @@ public class Util {
         }
     }
 
-    private static String pathToEncrypted(String path) {
+    public static String pathToEncrypted(String path) {
         return path + ".encrypted";
     }
 
@@ -75,7 +141,7 @@ public class Util {
         return path;
     }
 
-    private static String pathToDecrypted(String path) {
+    public static String pathToDecrypted(String path) {
         String[] r = path.split("\\.");
         return r[0] + ".plain." + r[r.length - 2];
     }

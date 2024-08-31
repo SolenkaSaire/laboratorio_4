@@ -2,11 +2,21 @@ package network;
 
 import integrity.Hasher;
 import persistencia.Usuario;
+import symmetriccipher.SecretKeyManager;
 import util.Base64;
 import util.Objects;
 import util.Util;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.Socket;
+
+import static util.Util.pathToDecrypted;
+import static util.Util.pathToEncrypted;
 
 public class Cliente {
 
@@ -63,5 +73,68 @@ public class Cliente {
         }
         ftc.init();
     }
+
+
+    /*LAB 4 punto 2*/
+    public static String encryptBinaryFile(String filename) throws Exception {
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToEncrypted(filename)))) {
+
+            byte[] buffer = new byte[BLOCK_SIZE];
+            int bytesRead;
+
+            // se lee el archivo por bloques de 512 bytes para encriptar
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                //se encripta el bloque en base 64
+                byte[] encryptedData = cipher.update(buffer, 0, bytesRead);
+                if (encryptedData != null) {
+                    outputStream.write(encryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return filename + ".encrypted";
+    }
+
+
+    public static String decryptBinaryFile(String filename) throws Exception {
+        SecretKey secretKey = SecretKeyManager.loadKey();
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+
+
+        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filename));
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(pathToDecrypted(filename)))) {
+
+            byte[] buffer = new byte[BLOCK_SIZE + 8];
+            int bytesRead;
+
+            // se lee el archivo por bloques de 512 bytes para desencriptar
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                // se desencripta el bloque
+                byte[] decryptedData = cipher.update(buffer, 0, bytesRead);
+                if (decryptedData != null) {
+                    outputStream.write(decryptedData);
+                }
+            }
+            byte[] finalBlock = cipher.doFinal();
+            if (finalBlock != null) {
+                outputStream.write(finalBlock);
+            }
+        }
+
+        return pathToDecrypted(filename);
+    }
+
+    /**/
 
 }
