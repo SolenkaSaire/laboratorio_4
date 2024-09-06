@@ -138,10 +138,10 @@ public class ClienteMensajeria {
 
 
         System.out.println("Commands: ");
-        System.out.println("1. Register user: REGISTER <username>");
-        System.out.println("2. Get public key: GET_PUBLIC_KEY <username>");
-        System.out.println("3. Send message: SEND_MESSAGE <to_username> <message>");
-        System.out.println("4. Read messages: READ <username>");
+        System.out.println("1. Register user: REGISTRAR <username>");
+        System.out.println("2. Get public key: OBTENER_LLAVE_PUBLICA <username>");
+        System.out.println("3. Send message: ENVIAR <to_username> <message>");
+        System.out.println("4. Read messages: LEER <username>");
 
 
             System.out.print("Enter command: ");
@@ -149,13 +149,13 @@ public class ClienteMensajeria {
             clientSideSocket = new Socket(this.server, this.port);
             createStreams(clientSideSocket);
 
-            if (command.startsWith("REGISTER ")) {
+            if (command.startsWith("REGISTRAR ")) {
                 String username = command.split(" ")[1];
                 registerUser(username);
-            } else if (command.startsWith("GET_PUBLIC_KEY ")) {
+            } else if (command.startsWith("OBTENER_LLAVE_PUBLICA ")) {
                 String username = command.split(" ")[1];
                 getPublicKey(username);
-            } else if (command.startsWith("SEND_MESSAGE ")) {
+            } else if (command.startsWith("ENVIAR ")) {
                 String[] parts = command.split(" ", 3);
                 String toUsername = parts[1];
                 String message = parts[2];
@@ -163,7 +163,7 @@ public class ClienteMensajeria {
                 clientSideSocket = new Socket(this.server, this.port);
                 createStreams(clientSideSocket);
                 sendMessage(toUsername, message,key );
-            } else if (command.startsWith("READ ")) {
+            } else if (command.startsWith("LEER ")) {
                 String username = command.split(" ")[1];
                 readMessages(username);
             } else {
