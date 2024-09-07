@@ -78,6 +78,57 @@ public class PublicKeyCipher {
         return output;
     }
 
+    //-----------------------------LLAVE PRIVADA----------------------------
+    // Método para encriptar un archivo de texto línea por línea con la clave privada
+    public void encryptTextFile(String inputFilePath, PrivateKey privateKey) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(inputFilePath + ".rsa"))) {
+
+            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                // Encriptar cada línea
+                byte[] encryptedBytes = cipher.doFinal(line.getBytes());
+
+                // Codificar en Base64 para evitar problemas de transmisión de bytes
+                String encodedString = Base64.getEncoder().encodeToString(encryptedBytes);
+
+                // Escribir línea cifrada con un delimitador
+                writer.write(encodedString);
+                writer.newLine();
+            }
+        }
+    }
+
+    // Método para desencriptar un archivo de texto línea por línea usando la clave pública
+    public void decryptTextFile(String inputFilePath, PublicKey publicKey) throws Exception {
+        String outputFilePath = inputFilePath.replace(".rsa", ".plain.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
+
+            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                // Decodificar la línea en Base64
+                byte[] decodedBytes = Base64.decode(line);
+
+                // Desencriptar cada línea
+                byte[] decryptedBytes = cipher.doFinal(decodedBytes);
+
+                // Escribir línea desencriptada
+                writer.write(new String(decryptedBytes));
+                writer.newLine();
+            }
+        }
+    }
+
+
+
+    //-----------------------------LLAVE EPUBLICA--------------------------
+
     // Método para encriptar un archivo de texto línea por línea
     public void encryptTextFile(String inputFilePath, PublicKey publicKey) throws Exception {
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
