@@ -1,43 +1,76 @@
-Vivamus vitae odio purus Proin ultrices sed nunc et commodo
-Aliqam condimentum augue a facilisis tempus lorem lorem blandit risus
-lacinia pharetra leo ligula quis lectus Duis pulvinar nulla eget tincidunt
-faucibus eros erat posuere nisl eu porta felis justo molestie urna
-Aenean mollis accumsan neque sed placerat sapien auctor ac Fusce est
-felis mollis sed felis quis dignissim posuere erat In vel faucibus nisl
-Vivamus eu felis sapien Praesent ac erat ut lorem ultrices pretium
-Nulla placerat vestibulum arcu nec elementum Duis molestie ac tortor eu
-ultrices Aliquam eget lorem iaculis sollicitudin erat vitae posuere turpis
-In felis nisi vestibulum ut nisl sit amet luctus sagittis lectus Phasellus at pharetra felis
-Nunc porttitor sodales quam vel tempus Donec vel interdum elit In at
-turpis varius sagittis eros non malesuada urna Cras consequat lacus
-sit amet orci fermentum euismod interdum mi sollicitudin
-Aenean a justo tempor congue mauris sit amet dictum orci Fusce eu ante
-semper vehicula justo sed aliquam nisi Proin ut dapibus ligula eget auctor
-ipsum Aliquam malesuada purus maximus posuere tellus sed efficitur ligula
-Maecenas semper sem a sodales porttitor
-Praesent in ligula rutrum fringilla velit ac lobortis ante Aliquam sodales
-tortor quis semper ullamcorper Mauris cursus tempor lacinia Praesent maximus
-feugiat erat a cursus enim tristique nec
-Quisque pellentesque eu erat sed porttitor Nunc gravida lacinia metus quis
-fermentum mi mollis nec Sed finibus ligula scelerisque risus finibus vel
-finibus libero auctor Pellentesque at erat eu leo porttitor finibus
-Ut suscipit est eget consectetur laoreet sem magna malesuada
-turpis eu auctor nunc felis sed tortor
-Etiam mattis est in felis sodales pellentesque Ut et sagittis
-nulla Donec aliquet porta mi a iaculis Nam non lorem ut dui tempor gravida
-Orci varius natoque penatibus et magnis dis parturient montes
-nascetur ridiculus mus Duis sed tellus quis dui tincidunt pharetra
-a eu elit Nulla viverra libero a lacus sodales rutrum
-Etiam malesuada congue neque Sed convallis turpis a venenatis feugiat
- Nulla ornare tempor ante sed porta est efficitur eu In hendrerit orci nec augue porta euismod
-Maecenas imperdiet sapien ut maximus commodo ipsum elit consequat
-metus ultricies sagittis ante eros vitae justo Cras vestibulum
-odio luctus rhoncus fringilla tortor risus ullamcorper elit sit
-amet ultricies arcu diam sodales nulla Maecenas eu sem malesuada
-imperdiet mi sit amet scelerisque magna
-Sed et lorem est Sed est magna dapibus sed nibh sagittis
-accumsan vehicula turpis Maecenas faucibus odio eu mauris ultrices auctor
-Aenean dignissim erat et sollicitudin luctus Praesent a facilisis dolor
-sed aliquam tortor Nam dictum dolor ac lobortis vulputate Cras suscipit
-congue mi at finibus
-Maecenas blandit augue nibh eu vestibulum leo malesuada sed
+ORGANIZACIÓN USUARIA
+El proyecto va dirigido al sector de la tecnología y puede ser utilizado en la universidad del
+Quindío.
+EMPRESAS AVÍCOLAS
+La avicultura hace parte del sector agropecuario y está constituida por las actividades de producción de huevos y carnes de aves. En Colombia esta actividad ha tenido un continuo crecimiento en los últimos cincuenta años al pasar de producir 30 mil toneladas de carne de pollo en 1961 a un poco más de un millón en 2012, lo cual representó un
+crecimiento del 7,1% promedio anual, pasando de aportar el 7,0% de la producción total nacional de carnes de res, cerdo y pollo en 1961 al 50,4% en 2012.
+En la segunda mitad del siglo XX con los esfuerzos de las empresas y las organizaciones gremiales se comenzó a desarrollar la avicultura en Colombia, producto de la experiencia y aprendizaje continuo de productores dedicados a esta actividad, que introdujeron tecnología a los sistemas de producción para lograr mayor productividad.
+También las medidas adoptadas por las instituciones para reglamentar el control y la calidad de la producción agrícola fueron claves para elevar el nivel competitivo y aumentar la eficiencia en los productores de huevos y pollo.
+En los años ochenta la industria avícola del país tuvo una gran expansión al crecer al 9,5% promedio anual la producción de carne de pollo. En ese momento ya existía la capacidad instalada para producir los pollos y huevos para abastecer el mercado nacional. Además, comenzó la venta de huevos clasificados por calidad, tamaño e
+higiene. Sin embargo, persistían los altos costos de los concentrados, los empaques y la distribución de los productos a los puntos de venta.
+El crecimiento de la demanda de productos avícolas en los centros urbanos del país incidió en la instalación de criaderos cercanos a las zonas de consumo, dándole un carácter semiurbano y bajos costos en transporte a esta actividad. Con la introducción de nuevas tecnologías en genética e instalaciones se aumentó la producción. Además, otros
+sectores como el comercio, la industria de alimentos concentrados y los proveedores de insumos, entraron a formar parte de la cadena avícola.
+GLOSARIO
+Arduino
+Es una plataforma de creación de electrónica de código abierto, la cual está basada en
+hardware y software libre, flexible y fácil de utilizar para los creadores y desarrolladores.
+Wifi
+Tecnología que permite conectar diferentes equipos informáticos a través de una red
+inalámbrica de banda ancha.
+Android
+Es un sistema operativo inicialmente pensado para teléfonos móviles, al igual que iOS,
+Symbian y Blackberry OS. Lo que lo hace diferente es que está basado en Linux, un núcleo
+de sistema operativo libre, gratuito y multiplataforma.
+Red automatizada
+La automatización de redes es una metodología en la que el software configura,
+promociona, gestiona y prueba dispositivos de red automáticamente. Lo utilizan las
+empresas y los proveedores de servicios para mejorar la eficiencia y reducir los errores
+humanos y los gastos operativos.
+Sensor
+Es todo aquello que tiene una propiedad sensible a una magnitud del medio, y al variar esta
+magnitud también varía con cierta intensidad la propiedad, es decir, manifiesta la presencia
+de dicha magnitud, y también su medida.
+Actuadores
+Es un dispositivo capaz de transformar energía hidráulica, neumática o eléctrica en la
+activación de un proceso con la finalidad de generar un efecto sobre un proceso
+automatizado.
+Conexión remota
+Es la conexión a distancia entre dos o más equipos, donde uno de ellos permite acceder al
+otro como si se estuviera trabajando directamente en frente de este, mediante el empleo de
+un remote access software.
+Bluetooth
+Es una especificación industrial para redes inalámbricas de área personal creado por
+Bluetooth Special Interest Group, Inc. que posibilita la transmisión de voz y datos entre
+diferentes dispositivos mediante un enlace por radiofrecuencia en la banda ISM de los 2.4
+GHz.
+INCUBADORA DE HUEVOS
+DESCRIPCIÓN DEL PROBLEMA
+Para conseguir la óptima incubabilidad y calidad del pollito, los huevos fértiles requieren de
+un manejo cuidadoso desde el momento de su puesta. Son sumamente importantes las
+condiciones medioambientales en todo el momento del proceso: durante su recolección,
+desinfección, transporte, almacenamiento previo a la incubación, almacenamiento,
+precalentamiento y durante la incubación propiamente dicha.
+El tratamiento inadecuado de los huevos reduce la incubabilidad, produce cambios en las
+pautas de mortalidad embrionaria y también puede afectar al rendimiento posterior al
+nacimiento de los pollitos. No todos los huevos fértiles producen pollitos. Generalmente, la
+mortalidad es más alta en los primeros días de incubación, cuando todos los órganos del
+embrión se están formando.El periodo intermedio de incubación es esencialmente de
+crecimiento rápido y, generalmente, se caracteriza por una muerte embrionaria muy baja. La
+mortalidad vuelve a aumentar en los últimos días de incubación, cuando el embrión se da
+vuelta en busca de la cámara de aire para ventilar los pulmones, modificar la circulación
+sanguínea, absorber el saco vitelino y, finalmente, intentar nacer. Pauta normal de pérdidas
+embrionarias durante la incubación. Basada en Kuurman et al.(2003). Poultry Science, 82:214-222.
+Es sorprendente lo que le ocurre al huevo durante el período que está en la incubadora. En
+21 días pasa de un huevo fértil de unos pocos miles de células a un pollito sano y activo,
+siempre que el huevo tiene los nutrientes adecuados, una cáscara sólida y un buen manejo
+de incubación se ha practicado.
+Se deben proporcionar cuatro factores críticos de incubación para producir pollitos de la
+más alta calidad posible que alcanzarán su potencial genético en el campo. Los cuatro
+factores de incubación a los que normalmente se hace referencia son:
+Temperatura adecuada del huevo
+Humedad adecuada
+Girando el huevo
+Ventilación de la incubadora.
+Por lo tanto, si los cuatro factores no se manejan adecuadamente o la inversión materna en
+el óvulo en si no es adecuada, puede producirse una disminución de la calidad de los
+pollitos y de la eclosión

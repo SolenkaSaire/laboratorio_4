@@ -36,29 +36,28 @@ public class RestriccionesRSATester02 {
         byte[] clearText = generateRandomString(1025).getBytes();
 
         //crear matriz de bytes
-       byte[][] matrixBytes = Util.split(clearText, 110);
-       byte[][] matrixBytesEncrypted = new byte[matrixBytes.length][];
-       byte[][] matrixBytesDecrypted = new byte[matrixBytes.length][];
+        byte[][] matrixBytes = Util.split(clearText, 110);
+        byte[][] matrixBytesEncrypted = new byte[matrixBytes.length][];
+        byte[][] matrixBytesDecrypted = new byte[matrixBytes.length][];
 
-       for (int i = 0; i < matrixBytes.length; i++) {
-           System.out.println("Bq " + i + ": " + new String(matrixBytes[i]).length());
-           byte[] encryptedText = cipher.encryptMessage(new String(matrixBytes[i]), publicKey);
-           System.out.println(encryptedText.length);
-           matrixBytesEncrypted[i] = encryptedText;
-       }
+        for (int i = 0; i < matrixBytes.length; i++) {
+            System.out.println("Bq " + i + ": " + new String(matrixBytes[i]).length());
+            byte[] encryptedText = cipher.encryptMessage(new String(matrixBytes[i]), publicKey);
+            System.out.println(encryptedText.length);
+            matrixBytesEncrypted[i] = encryptedText;
+        }
 
-       for(int i = 0; i< matrixBytesEncrypted.length; i++){
-           System.out.println("Before " + i + ": " + matrixBytesEncrypted[i].length);
-           byte[] decryptedText = cipher.decryptMessage(matrixBytesEncrypted[i], privateKey).getBytes();
-              System.out.println("After " + i + ": " + decryptedText.length);
+        for (int i = 0; i < matrixBytesEncrypted.length; i++) {
+            System.out.println("Before " + i + ": " + matrixBytesEncrypted[i].length);
+            byte[] decryptedText = cipher.decryptMessage(matrixBytesEncrypted[i], privateKey).getBytes();
+            System.out.println("After " + i + ": " + decryptedText.length);
 
-                matrixBytesDecrypted[i] = decryptedText;
-         }
+            matrixBytesDecrypted[i] = decryptedText;
+        }
 
-       //join de matriz a array
-         byte[] decrypted = Util.join(matrixBytesDecrypted);
-            System.out.println("Texto descifrado: " + new String(decrypted));
-
+        //join de matriz a array
+        byte[] decrypted = Util.join(matrixBytesDecrypted);
+        System.out.println("Texto descifrado: " + new String(decrypted));
 
 
     }

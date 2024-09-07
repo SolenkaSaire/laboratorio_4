@@ -1,13 +1,11 @@
 package publickeycipher;
 
-import util.Util;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.*;
 
-public class ArchivosRSATester01 {
+public class ArchivosRSATester02 {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         try {
@@ -21,18 +19,18 @@ public class ArchivosRSATester01 {
             // Crear instancia de PublicKeyCipher
             PublicKeyCipher cipher = new PublicKeyCipher(algorithm, 2048);
 
-            // Archivo de prueba para cifrar y descifrar
-            String inputFilePath = "test.txt";
+            // Archivo binario de prueba para cifrar y descifrar
+            String inputFilePath = "scan.pdf"; // Puedes reemplazar este archivo con el que desees
 
-            // Cifrar archivo
-            System.out.println("Cifrando archivo...");
-            cipher.encryptTextFile(inputFilePath, publicKey);
+            // Cifrar archivo binario
+            System.out.println("Cifrando archivo binario...");
+            cipher.encryptFile(inputFilePath, publicKey);
             System.out.println("Archivo cifrado generado: " + inputFilePath + ".rsa");
 
-            // Descifrar archivo
-            System.out.println("Descifrando archivo...");
-            cipher.decryptTextFile(inputFilePath + ".rsa", privateKey);
-            System.out.println("Archivo descifrado generado: " + inputFilePath + ".plain.txt");
+            // Descifrar archivo binario
+            System.out.println("Descifrando archivo binario...");
+            cipher.decryptFile(inputFilePath + ".rsa", privateKey);
+            System.out.println("Archivo descifrado generado: " + inputFilePath.replace(".pdf", ".plain.pdf"));
 
         } catch (Exception e) {
             e.printStackTrace();

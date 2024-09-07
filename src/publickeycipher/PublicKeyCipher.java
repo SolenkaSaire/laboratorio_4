@@ -26,7 +26,7 @@ public class PublicKeyCipher {
     }
 
     // Método para obtener el tamaño máximo de caracteres que se pueden cifrar
-    private int getMaxBlockSize() {
+    private int getMaxBlockSizeEncrypt() {
         // Depende del tamaño de la clave
         if (keySize == 1024) {
             return 110;
@@ -87,9 +87,13 @@ public class PublicKeyCipher {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                byte[] encryptedBytes = cipher.doFinal(line.getBytes());
-                String encodedString = Base64.getEncoder().encodeToString(encryptedBytes);
-                writer.write(encodedString);
+                byte[][] matrixBytes = Util.split(line.getBytes(), getMaxBlockSizeEncrypt());
+                for (byte[] matrixByte : matrixBytes) {
+                    byte[] encryptedBytes = cipher.doFinal(matrixByte);
+                    String encodedString = Base64.getEncoder().encodeToString(encryptedBytes);
+                    System.out.println(encodedString.length());
+                    writer.write(encodedString);
+                }
                 writer.newLine();
             }
         }
@@ -106,12 +110,80 @@ public class PublicKeyCipher {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                byte[] decodedBytes = Base64.decode(line);
-                byte[] decryptedBytes = cipher.doFinal(decodedBytes);
-                writer.write(new String(decryptedBytes));
+                for (int i = 0; i < line.length(); i += 344) {
+                    String chunk = line.substring(i, Math.min(i + 344, line.length()));
+                    writer.write(new String(cipher.doFinal(Base64.decode(chunk))));
+                }
                 writer.newLine();
             }
         }
+    }
+
+    // Método para encriptar un archivo binario
+    public void encryptFile(String inputFilePath, PublicKey publicKey) throws Exception {
+        File inputFile = new File(inputFilePath);
+        String outputFilePath = inputFilePath + ".rsa";
+
+        try (FileInputStream fis = new FileInputStream(inputFile);
+             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFilePath))) {
+
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] buffer = new byte[getMaxBlockSizeEncrypt()]; // Bloques a leer
+
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                byte[] block = (bytesRead == buffer.length) ? buffer : trimBuffer(buffer, bytesRead); // Recorta si es necesario
+                byte[] encryptedBlock = cipher.doFinal(block);
+                String encodedBlock = Base64.getEncoder().encodeToString(encryptedBlock);
+                bos.write(encodedBlock.getBytes());
+                bos.write(System.lineSeparator().getBytes());
+            }
+        }
+    }
+
+    // Método para desencriptar un archivo binario
+    public void decryptFile(String inputFilePath, PrivateKey privateKey) throws Exception {
+        File inputFile = new File(inputFilePath);
+        String outputFilePath = inputFilePath.replace(".rsa", ".plain" + getFirstFileExtension(inputFilePath));
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             FileOutputStream fos = new FileOutputStream(outputFilePath)) {
+
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                byte[] encryptedBlock = Base64.decode(line);
+                byte[] decryptedBlock = cipher.doFinal(encryptedBlock);
+                fos.write(decryptedBlock);
+            }
+        }
+    }
+
+    // Utilidades
+    private byte[] trimBuffer(byte[] buffer, int length) {
+        byte[] trimmed = new byte[length];
+        System.arraycopy(buffer, 0, trimmed, 0, length);
+        return trimmed;
+    }
+
+    private String getFileExtension(String filePath) {
+        int index = filePath.lastIndexOf('.');
+        if (index > 0) {
+            return filePath.substring(index);
+        }
+        return ""; // Sin extensión
+    }
+
+    private String getFirstFileExtension(String filePath) {
+        int index = filePath.indexOf('.');  // Encuentra el primer punto
+        if (index > 0) {
+            int nextIndex = filePath.indexOf('.', index + 1);  // Encuentra el siguiente punto después del primero
+            if (nextIndex > 0) {
+                return filePath.substring(index, nextIndex);  // Devuelve la extensión entre los puntos
+            }
+            return filePath.substring(index + 1);  // Si no hay otro punto, devuelve la parte después del primero
+        }
+        return "";  // Sin extensión
     }
 
 }
