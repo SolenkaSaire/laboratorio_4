@@ -54,7 +54,7 @@ public class Cliente {
 
     public void protocol(Socket socket) throws Exception {
         System.out.println("Client: Sending encrypted file to server...");
-        String filename = "test2.txt";
+        String filename = "test.txt";
         sendEncryptedFile(filename, socket);
 
         System.out.println("Client: Receiving encrypted file from server...");
@@ -62,28 +62,32 @@ public class Cliente {
     }
 
     public static void sendEncryptedFile(String filename, Socket socket) throws Exception {
-        // Generar claves públicas y privadas
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
+        String algorithm = "RSA";
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+        keyPairGenerator.initialize(2048); // Clave de 2048 bits
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         PrivateKey privateKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
-        // Cifrar archivo con la clave privada
-        PublicKeyCipher cipher = new PublicKeyCipher("RSA");
-        cipher.encryptTextFile(filename, privateKey);
+        // Crear instancia de PublicKeyCipher
+        PublicKeyCipher cipher = new PublicKeyCipher(algorithm, 2048);
+
+        // Cifrar archivo binario
+        System.out.println("Cifrando archivo binario...");
+        String fileNameEncrypted = cipher.encryptFile(filename, privateKey);
+        System.out.println("Archivo cifrado generado: " + fileNameEncrypted);
 
         // Enviar archivo cifrado
-        String encryptedFilename = filename + ".rsa";
-        Files.sendFile(encryptedFilename, socket);
+        Files.sendFile(fileNameEncrypted, socket);
 
         // Enviar clave pública
         Objects.sendObject(publicKey.getEncoded(), socket);
 
         // Generar y enviar archivo hash
-        String hashFilename = encryptedFilename + ".hash";
+        String hashFilename = fileNameEncrypted+".hash";
         Hasher.generateIntegrityCheckerFile(filename, hashFilename);
         Files.sendFile(hashFilename, socket);
+
     }
 
     public static void receiveEncryptedFile(Socket socket) throws Exception {
@@ -100,14 +104,11 @@ public class Cliente {
 
         // Descifrar el archivo usando la clave pública
         PublicKeyCipher cipher = new PublicKeyCipher("RSA");
-        cipher.decryptTextFile(encryptedFilename, publicKey);
+       String fileNameDecrypted =  cipher.decryptFile(encryptedFilename , publicKey);
 
-        // Verificar integridad
-        String decryptedFilename = encryptedFilename.replace(".rsa", ".plain.txt");
-
-        Hasher.generateIntegrityFile(decryptedFilename, hashFilename);
+     //   Hasher.generateIntegrityFile(decryptedFilename, hashFilename);
+        Hasher.generateIntegrityFile(fileNameDecrypted, hashFilename);
         System.out.println("Client: File received and integrity verified.");
-
     }
 
     public static void main(String[] args) throws Exception {
