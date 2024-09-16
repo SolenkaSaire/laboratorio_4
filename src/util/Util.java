@@ -327,6 +327,32 @@ public class Util {
         return resultado;
     }
 
+    public static String byteArrayToHexString(byte[] bytes) {
+        String separator = ":";
+        StringBuilder result = new StringBuilder();
+        int cont = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            result.append(String.format("%02x", bytes[i])).append(separator);
+            if (cont == 9) {
+                result.append("\n");
+                cont = -1;
+            }
+            cont++;
+        }
+        return result.toString();
+    }
+
+    public static String byteArrayToHexStringLine(byte[] bytes) {
+        String separator = ":";
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < bytes.length; i++) {
+            result.append(String.format("%02x", bytes[i])).append(separator);
+
+        }
+        return result.toString();
+    }
+
     //metodo para verificar si un hash es o no hexadecimal
     public static boolean isHexadecimal(String hash) {
         return hash.matches("[0-9a-fA-F]+");
