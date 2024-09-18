@@ -126,6 +126,7 @@ public class PublicKeyCipher {
     }
 
 
+
     //-----------------------------LLAVE EPUBLICA--------------------------
 
     // Método para encriptar un archivo de texto línea por línea
@@ -170,7 +171,7 @@ public class PublicKeyCipher {
     }
 
     // Método para encriptar un archivo binario
-    public String  encryptFile(String inputFilePath, PublicKey publicKey) throws Exception {
+    public void encryptFile(String inputFilePath, PublicKey publicKey) throws Exception {
         File inputFile = new File(inputFilePath);
         String outputFilePath = inputFilePath + ".rsa";
 
@@ -189,33 +190,10 @@ public class PublicKeyCipher {
                 bos.write(System.lineSeparator().getBytes());
             }
         }
-        return outputFilePath;
-    }
-
-    public String  encryptFile(String inputFilePath, PrivateKey privateKey) throws Exception {
-        File inputFile = new File(inputFilePath);
-        String outputFilePath = inputFilePath + ".rsa";
-
-        try (FileInputStream fis = new FileInputStream(inputFile);
-             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFilePath))) {
-
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-            byte[] buffer = new byte[getMaxBlockSizeEncrypt()]; // Bloques a leer
-
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                byte[] block = (bytesRead == buffer.length) ? buffer : trimBuffer(buffer, bytesRead); // Recorta si es necesario
-                byte[] encryptedBlock = cipher.doFinal(block);
-                String encodedBlock = Base64.getEncoder().encodeToString(encryptedBlock);
-                bos.write(encodedBlock.getBytes());
-                bos.write(System.lineSeparator().getBytes());
-            }
-        }
-        return outputFilePath;
     }
 
     // Método para desencriptar un archivo binario
-    public String decryptFile(String inputFilePath, PrivateKey privateKey) throws Exception {
+    public void decryptFile(String inputFilePath, PrivateKey privateKey) throws Exception {
         File inputFile = new File(inputFilePath);
         String outputFilePath = inputFilePath.replace(".rsa", ".plain" + getFirstFileExtension(inputFilePath));
 
@@ -230,25 +208,6 @@ public class PublicKeyCipher {
                 fos.write(decryptedBlock);
             }
         }
-        return outputFilePath;
-    }
-
-    public String decryptFile(String inputFilePath, PublicKey publicKey) throws Exception {
-        File inputFile = new File(inputFilePath);
-        String outputFilePath = inputFilePath.replace(".rsa", ".plain" + getFirstFileExtension(inputFilePath));
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-             FileOutputStream fos = new FileOutputStream(outputFilePath)) {
-
-            cipher.init(Cipher.DECRYPT_MODE, publicKey);
-            String line;
-            while ((line = reader.readLine()) != null) {
-                byte[] encryptedBlock = Base64.decode(line);
-                byte[] decryptedBlock = cipher.doFinal(encryptedBlock);
-                fos.write(decryptedBlock);
-            }
-        }
-        return outputFilePath;
     }
 
     // Utilidades
