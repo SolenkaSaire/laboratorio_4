@@ -24,13 +24,13 @@ public class ArchivosRSATester02 {
 
             // Cifrar archivo binario
             System.out.println("Cifrando archivo binario...");
-            cipher.encryptFile(inputFilePath, publicKey);
-            System.out.println("Archivo cifrado generado: " + inputFilePath + ".rsa");
+            String encryptFileName= cipher.encryptFile(inputFilePath, publicKey);
+            System.out.println("Archivo cifrado generado: " + encryptFileName);
 
             // Descifrar archivo binario
             System.out.println("Descifrando archivo binario...");
-            cipher.decryptFile(inputFilePath + ".rsa", privateKey);
-            System.out.println("Archivo descifrado generado: " + inputFilePath.replace(".pdf", ".plain.pdf"));
+            String decryptFileName = cipher.decryptFile(inputFilePath + ".rsa", privateKey);
+            System.out.println("Archivo descifrado generado: " + decryptFileName);
 
         } catch (Exception e) {
             e.printStackTrace();
